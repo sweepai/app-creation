@@ -6,55 +6,66 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const DEFAULT_CONFIG = {
-      name: "sweep-ai-self-hosted",
-      url: "https://docs.sweep.dev/usage/deployment",
-      public: true,
-      default_permissions: {
-        administration: "read",
-        actions: "read",
-        checks: "read",
-        contents: "write",
-        issues: "write",
-        metadata: "read",
-        pull_requests: "write",
-        statuses: "read",
-        workflows: "write"
-      },
-      default_events: [
-        "check_run",
-        "check_suite",
-        "commit_comment",
-        "issue_comment",
-        "issues",
-        "label",
-        "pull_request",
-        "pull_request_review",
-        "pull_request_review_comment",
-        "pull_request_review_thread",
-        "push",
-        "status",
-        "workflow_job",
-        "workflow_run"
-      ],
-      redirect_url: "http://localhost:3000/redirect",
-      hook_attributes: {
-        url: "https://example.com/github/events",
-      },
-    }
-  
-const DEFAULT_CONFIG_STRING = JSON.stringify(DEFAULT_CONFIG)
+  name: "sweep-ai-self-hosted",
+  url: "https://docs.sweep.dev/usage/deployment",
+  public: true,
+  default_permissions: {
+    administration: "read",
+    actions: "read",
+    checks: "read",
+    contents: "write",
+    issues: "write",
+    metadata: "read",
+    pull_requests: "write",
+    statuses: "read",
+    workflows: "write"
+  },
+  default_events: [
+    "check_run",
+    "check_suite",
+    "commit_comment",
+    "issue_comment",
+    "issues",
+    "label",
+    "pull_request",
+    "pull_request_review",
+    "pull_request_review_comment",
+    "pull_request_review_thread",
+    "push",
+    "status",
+    "workflow_job",
+    "workflow_run"
+  ],
+  redirect_url: "http://localhost:3000/redirect",
+  hook_attributes: {
+    url: "https://example.com/github/events",
+  },
+}
+
 
 export default function Home() {
   const [organizationName, setOrganizationName] = useState("");
+  let DEFAULT_CONFIG_STRING = JSON.stringify({
+    ...DEFAULT_CONFIG,
+  })
+  const [configString, setConfigString] = useState(JSON.stringify(DEFAULT_CONFIG))
+  useEffect(() => {
+    if (window !== undefined) {
+      setConfigString(JSON.stringify({
+        ...DEFAULT_CONFIG,
+        redirect_url: `${window?.location?.origin}/redirect`
+      }))
+    }
+  }, [])
   return (
     <main className="flex min-h-screen flex-col items-center justify-around p-24">
       <Tabs defaultValue="individual" className="w-[600px]">
         <a href="https://docs.sweep.dev/deployment">
           <div className="flex justify-around mb-16">
-            <img src="sweeping.gif" alt="Sweep's logo" className="rounded-full bg-zinc-900 h-[250px] w-[250px]"/>
+            <img src="https://raw.githubusercontent.com/sweepai/sweep/main/.assets/sweeping.gif" alt="Sweep's logo" className="rounded-full bg-zinc-900 h-[250px] w-[250px]" width={250} height={250}/>
           </div>
         </a>
         <TabsList className="grid w-full grid-cols-2">
@@ -71,7 +82,7 @@ export default function Home() {
             </CardHeader>
             <CardContent>
               <form action="https://github.com/settings/apps/new" method="post">
-                <input type="text" name="manifest" id="manifest" value={DEFAULT_CONFIG_STRING} hidden/>
+                <input type="text" name="manifest" id="manifest" value={configString} hidden/>
                 <br/>
                 <Button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white">
                   Create App
@@ -94,7 +105,7 @@ export default function Home() {
                 setOrganizationName(e.target.value)}
               } />
               <form action={`https://github.com/organizations/${organizationName}/settings/apps/new`} method="post">
-                <input type="text" name="manifest" id="manifest" value={DEFAULT_CONFIG_STRING} hidden/>
+                <input type="text" name="manifest" id="manifest" value={configString} hidden/>
                 <br/>
                 <Button type="submit" className="bg-blue-800 hover:bg-blue-900 text-white">
                   Create App
