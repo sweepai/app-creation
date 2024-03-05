@@ -115,9 +115,6 @@ export default function Home() {
           </Card>
         </TabsContent>
       </Tabs>
-
-
-
     </main>
   );
 }
